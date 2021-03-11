@@ -1,0 +1,1 @@
+python "C:\Users\quinn\Documents\Projects\6502Computer\EEPROMWriter3\WriteEEPROM.py" COM3 W "C:\Users\quinn\Documents\Projects\6502Computer\Code\EEPROM\a.out"
