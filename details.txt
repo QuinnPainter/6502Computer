@@ -1,0 +1,163 @@
+Memory Decoding:
+RAM = A15 low
+ROM = A15 high, A14 high
+GFX = A15 high, A14 low, A13 low
+VIA1 = A15 high, A14 low, A13 high, A12 high
+VIA2 = A15 high, A14 low, A13 high, A12 low
+
+Keyboard Scancodes:
+Top bit - break code (0 for make, 1 for break)
+
+Boots from SDOSBOOT.PRG on SD card
+
+SD Error Codes:
+00 - CMD0 wrong response - probably SD card isn't inserted or wires are loose.
+01 - CMD8 wrong response - means the SD card is version 1 instead of version 2. may implement version 1 later.
+02 - CMD55 wrong response - probably means the SD card isn't properly compliant and is expecting a valid CRC
+03 - CMD58 wrong response - SD card is busy / too old (needs to be SDHC or SDXC with block addressing)
+04 - CMD16 wrong response - don't know why this would fail
+05 - Found FAT12 / FAT16 partition without MBR - only FAT32 is supported
+06 - Found MBR with incorrect partition type - SD partition 1 formatted wrong (NTFS or CHS FAT32?)
+
+Graphics Bus:
+8 data bits (input)
+1 clock line (input)
+1 interrupt line (output)
+
+Possible Resolutions:
+400x300 60hz - 50 column text
+512x384 60hz - 64 column text
+
+Commands: (hex)
+00: Clear Screen
+01: Send Char (followed by ANSI char byte)
+02: Send String (0 terminated)
+03: Set Cursor Position (followed by X byte and Y byte)
+04: Set Text Foreground Colour (followed by text colour)
+05: Set Text Background Colour (followed by text colour)
+06: Enable Cursor
+07: Disable Cursor
+Graphics Commands:
+20: Draw Point (gfx colour, gfx coordinate)
+21: Draw Line (gfx colour, gfx coordinate, gfx coordinate)
+22: Draw Rect (gfx colour, gfx coordinate, gfx coordinate)
+23: Draw Filled Rect (gfx colour, gfx coordinate, gfx coordinate)
+24: reserved for some other primitive
+25: 
+26: Draw Bitmap (gfx coordinate, gfx coordinate for width and height, array of gfx colours)
+27: Update Sprite Graphic (sprite index (byte), gfx coordinate for width and height, array of gfx colours)
+28: Move Sprite (sprite index, gfx coordinate)
+29: Make Sprite Visible (sprite index)
+2A: Make Sprite Invisible (sprite index)
+2B: Clear Sprites - removes all sprites / sprite info, useful for game exiting etc.
+
+FF: Do Nothing (just returns the "ready" pulse)
+
+sprites start invisible and at 0, 0
+
+maybe implement bitmap transparency - using upper 2 colour bits?
+
+Text colour indexes: (4-bit colour index - other 4 bits ignored)
+0: Black
+1: Red
+2: Green
+3: Yellow
+4: Blue
+5: Magenta
+6: Cyan
+7: White
+8: BrightBlack
+9: BrightRed
+10: BrightGreen
+11: BrightYellow
+12: BrightBlue
+13: BrightMagenta
+14: BrightCyan
+15: BrightWhite
+
+Graphics Colours: 6 bits, RRGGBB, upper 2 bits ignored
+(upper bit indicates transparency in bitmap mode - 1 is transparent)
+Graphics Coordinates: 16 bits for x and 16 bits for y, little-endian (lower byte first)
+
+qSDOS text input works like on the Atari.
+Backspace doesn't shift stuff left, and you can use the Insert key to insert a space.
+qSDOS Commands: (case insensitive)
+cls - Clear Screen
+reset - Reset the computer
+run - Execute a file from SD card (1 argument - 8.3 file name, case insensitive)
+ramdump - Hexdump a page of RAM (or any address space) (1 argument - hex byte, page of ram to dump) (changes $FE and $FF in zero page)
+textdump - Print out the contents of a text file (1 argument - 8.3 file name, case insensitive)
+command to reinitialise SD so it can be removed and reinserted?
+text / background colour commands?
+command to see files in dir like dir / ls?
+
+Image viewer info:
+fullsize 400x300 PPM = 352 KB
+400x300 in native colour format = 117 KB
+400x300 in packed 6 bit colour format = 87 KB - too much! file streaming? lossy compression (palettes)?
+200x150 in packed 6 bit colour format = 21 KB - maybe? 1 for each quadrant?
+
+
+System Bus Info:
+1 - VCC
+2 - Gnd
+3 - Address 0
+..
+18 - Address 15
+19 - Data 0
+..
+26 - Data 7
+27 - Reset
+28 - Clock
+29 - IRQ 1
+30 - IRQ 2
+31 - IRQ 3
+32 - NMI
+33 - Read / Write
+34 - Secondary Clock / Sound Clock
+35 - IO Select (active high)
+36 - User 1
+37 - User 2
+38 - User 3
+39 - Gnd
+40 - VCC
+
+User 1 goes to ESP Pin 2 - also controls ESP's LED
+User 2 goes to Keyboard Arduino Pin 4
+User 3 goes to Keyboard Arduino Pin 5
+
+irq from both vias goes to logic gate - how?
+clock for audio comes from esp on another card
+jumpers to unmap rom and ram
+pullups on all irq lines
+pullup on nmi
+header on unused via pins
+header on sound chip io ports
+move sound and sd together, keyboard and video together
+
+10uF electrolytic for power rails
+0.1uF / 100nF ceramic for chips
+
+bypass caps
+chip sockets
+right-angle headers
+vga port
+ps2 port
+flux pen
+rosin core solder (check if current is rosin core)
+
+Sockets:
+ZIF (ROM)
+40pin x 4 (6502, 2 x 6522, AY-3-8910)
+28pin x 1 (RAM)
+14pin x 3 (NAND, AND, Clock Div)
+8pin x 1 (clock)
+
+io select active high
+
+cs1 active high cs2b active low
+cs1 - io sel
+cs2 - a13
+
+cs1 - io sel
+cs2 - a12
