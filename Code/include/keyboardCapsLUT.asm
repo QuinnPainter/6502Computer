@@ -1,0 +1,73 @@
+; For UK layout
+    .blk 32, 0 ; Control characters
+    .byte ' ' ; Space (stays same with caps)
+    .byte 0 ; !
+    .byte 0 ; "
+    .byte '~' ; #
+    .byte 0 ; $
+    .byte 0 ; %
+    .byte 0 ; &
+    .byte '@' ; '
+    .byte 0 ; (
+    .byte 0 ; )
+    .byte 0 ; *
+    .byte 0 ; +
+    .byte '<' ; ,
+    .byte '_' ; -
+    .byte '>' ; .
+    .byte '?' ; /
+    .byte ')' ; 0
+    .byte '!' ; 1
+    .byte '"' ; 2
+    .byte 156 ; 3 (pound sign)
+    .byte '$' ; 4
+    .byte '%' ; 5
+    .byte '^' ; 6
+    .byte '&' ; 7
+    .byte '*' ; 8
+    .byte '(' ; 9
+    .byte 0 ; :
+    .byte ':' ; ;
+    .byte 0 ; <
+    .byte '+' ; =
+    .byte 0 ; >
+    .byte 0 ; ?
+    .byte 0 ; @
+    .blk 26, 0 ; Capital letters
+    .byte '{' ; [
+    .byte '|' ; \
+    .byte '}' ; ]
+    .byte 0 ; ^
+    .byte 0 ; _
+    .byte 170 ; ` (¬ symbol)
+    .byte 'A' ; a
+    .byte 'B' ; b
+    .byte 'C' ; c
+    .byte 'D' ; d
+    .byte 'E' ; e
+    .byte 'F' ; f
+    .byte 'G' ; g
+    .byte 'H' ; h
+    .byte 'I' ; i
+    .byte 'J' ; j
+    .byte 'K' ; k
+    .byte 'L' ; l
+    .byte 'M' ; m
+    .byte 'N' ; n
+    .byte 'O' ; o
+    .byte 'P' ; p
+    .byte 'Q' ; q
+    .byte 'R' ; r
+    .byte 'S' ; s
+    .byte 'T' ; t
+    .byte 'U' ; u
+    .byte 'V' ; v
+    .byte 'W' ; w
+    .byte 'X' ; x
+    .byte 'Y' ; y
+    .byte 'Z' ; z
+    .byte 0 ; {
+    .byte 0 ; |
+    .byte 0 ; }
+    .byte 0 ; ~
+    .byte 0 ; DEL
