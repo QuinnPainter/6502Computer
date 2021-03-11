@@ -1,0 +1,2 @@
+must use included assembler to build ehbasic source
+have to trim down the beginning and end of given binary
