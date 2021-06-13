@@ -1,5 +1,5 @@
 ; https://www.mouser.ie/datasheet/2/436/w65c22-1197.pdf
-VIA1_RB = $A000 ; VIA used for the graphics and sound systems,
+VIA1_RB = $A000 ; VIA used for the graphics and sound systems.
 VIA1_RA = $A001 ; RB = GFX Data, RA = AY-3-8910 data.
 VIA1_DDRB = $A002 ; Data Direction Register - 1 = output, 0 = input
 VIA1_DDRA = $A003

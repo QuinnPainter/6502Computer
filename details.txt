@@ -1,4 +1,4 @@
-Memory Decoding:
+Memory Decoding: (OLD - UPDATE SOON)
 RAM = A15 low
 ROM = A15 high, A14 high
 GFX = A15 high, A14 low, A13 low
