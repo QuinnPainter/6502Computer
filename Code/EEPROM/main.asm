@@ -5,8 +5,8 @@ SD_MOSI = %01000000
 SD_CLK = %00100000
 SD_CS = %00010000
 
-SOUND_BUSCTRL = VIA2_RB
-SOUND_DATABUS = VIA1_RA
+SOUND_BUSCTRL = VIA2_RA
+SOUND_DATABUS = VIA2_RB
 SOUND_BC1 = %00000001
 SOUND_BDIR = %00000010
 SOUND_BUSMODE_DATA = SOUND_BDIR
@@ -59,28 +59,28 @@ reset:
     sei ; disable IRQ
     cld ; disable decimal mode
     
-    stz VIA2_DDRA ; keyboard input bus all inputs
-    lda #%00001000
-    sta VIA2_PCR ; setup keyboard handshake
-    lda #%01111111
-    sta VIA2_IER ; disable VIA2 interrupts
-    lda #%10000010
-    sta VIA2_IER ; enable keyboard interrupt
+    stz VIA1_DDRA ; keyboard input bus all inputs
+    ;lda #%00001000
+    ;sta VIA2_PCR ; setup keyboard handshake
+    ;lda #%01111111
+    ;sta VIA2_IER ; disable VIA2 interrupts
+    ;lda #%10000010
+    ;sta VIA2_IER ; enable keyboard interrupt
     
     lda #%11111111
     sta VIA1_DDRB ; DDRB (graphics bus) all outputs
-    lda #%10001100
-    sta VIA1_PCR ; setup graphics handshake
+    lda #%10001000
+    sta VIA1_PCR ; setup graphics and keyboard handshake
     lda #%01111111
-    sta VIA1_IER ; disable all via interrupts
-    lda #%10010000
-    sta VIA1_IER ; Enable graphics ready interrupt
+    sta VIA1_IER ; disable VIA1 interrupts
+    lda #%10010010
+    sta VIA1_IER ; Enable graphics ready and keyboard interrupts
     
     lda #%11111111
-    sta VIA1_DDRA ; Sound bus all outputs
+    sta VIA2_DDRB ; Sound bus all outputs
     
     lda #%01110011
-    sta VIA2_DDRB ; SD + sound inputs / outputs
+    sta VIA2_DDRA ; SD + sound inputs / outputs
     
     ldy #$FF ; wait for graphics card to start up
     jsr delay
@@ -226,7 +226,7 @@ reset:
     jsr printstring
     
     lda #SD_CS
-    sta VIA2_RB ; Set CS high, CLK low
+    sta VIA2_RA ; Set CS high, CLK low
     ldx #10 ; Send dummy byte (0xFF) 10 times
 .dummyByteLoop:
     lda #$FF
@@ -234,7 +234,7 @@ reset:
     dex
     bne .dummyByteLoop
     
-    stz VIA2_RB     ; Set CS low
+    stz VIA2_RA     ; Set CS low
     lda #$40        ; Send CMD0 (0x40, 4 blank argument bytes, 0x95 CRC)
     jsr sdSendByte
     lda #$00
@@ -257,7 +257,7 @@ reset:
     
     jsr sdSendDummies
     
-    stz VIA2_RB     ; Set CS low
+    stz VIA2_RA     ; Set CS low
     lda #$48        ; Send CMD8 (0x48, 0x000001AA argument, 0x87 CRC)
     jsr sdSendByte
     lda #$00
@@ -288,7 +288,7 @@ reset:
 .sdInitLoop:
     jsr sdSendDummies
     
-    stz VIA2_RB     ; CRC should be disabled by this point so we can just use 0xFF (not 0!)
+    stz VIA2_RA     ; CRC should be disabled by this point so we can just use 0xFF (not 0!)
     lda #$77        ; Send CMD55 (0x77, 0x00000000 argument, 0x65 CRC)
     jsr sdSendByte
     lda #$00
@@ -311,7 +311,7 @@ reset:
 
     jsr sdSendDummies
     
-    stz VIA2_RB
+    stz VIA2_RA
     lda #$69        ; Send ACMD41 (0x69, 0x40000000 argument, 0x77 CRC)
     jsr sdSendByte
     lda #$40
@@ -333,7 +333,7 @@ reset:
 
     jsr sdSendDummies
     
-    stz VIA2_RB
+    stz VIA2_RA
     lda #$7A        ; Send CMD58 (0x7A, 0x00000000 argument, 0xFF CRC)
     jsr sdSendByte
     lda #$00
@@ -365,7 +365,7 @@ reset:
 
     jsr sdSendDummies
 
-    stz VIA2_RB
+    stz VIA2_RA
     lda #$50        ; Send CMD16 (0x50, 0x00000200 argument, 0xFF CRC)
     jsr sdSendByte
     lda #$00
@@ -1268,9 +1268,9 @@ fat32ClusterToSector:
 ; Outputs: A, Y - Garbage
 sdReadBlock:
     jsr sdSendDummies
-    lda VIA2_RB
+    lda VIA2_RA
     and #~(SD_CLK | SD_CS)
-    sta VIA2_RB
+    sta VIA2_RA
     lda #$51        ; Send CMD17 (0x51, address = argument, 0xFF CRC)
     jsr sdSendByte
     lda $04
@@ -1314,7 +1314,7 @@ sdReadBlock:
 ; Outputs: A, Y, ZPG $00 - Garbage
 sdSendByte:
     sta $00
-    lda VIA2_RB ; Set A to current value of CLK and CS
+    lda VIA2_RA ; Set A to current value of CLK and CS
     ldy #8      ; Loop thru 8 bits
 .sendBitLoop:
     ora #SD_MOSI ; Set output bit to 1
@@ -1322,12 +1322,12 @@ sdSendByte:
     bcs .bitHigh
     eor #SD_MOSI ; Set output bit to 0
 .bitHigh:
-    sta VIA2_RB
+    sta VIA2_RA
     
     ora #SD_CLK
-    sta VIA2_RB ; Clock high
+    sta VIA2_RA ; Clock high
     eor #SD_CLK
-    sta VIA2_RB ; Clock low
+    sta VIA2_RA ; Clock low
     
     dey
     bne .sendBitLoop
@@ -1337,17 +1337,17 @@ sdSendByte:
 ; Outputs: A, ZPG $00 - Byte received
 ;          Y - Garbage
 sdGetByte:
-    lda VIA2_RB
+    lda VIA2_RA
     and #~(SD_CLK | SD_CS)
     ora #SD_MOSI
-    sta VIA2_RB ; Set MOSI high, CS and CLK low
+    sta VIA2_RA ; Set MOSI high, CS and CLK low
     ldy #8      ; Loop thru 8 bits
 .getBitLoop:
     ora #SD_CLK
-    sta VIA2_RB ; Clock high
-    lda VIA2_RB ; Sample data
+    sta VIA2_RA ; Clock high
+    lda VIA2_RA ; Sample data
     eor #SD_CLK
-    sta VIA2_RB ; Clock low
+    sta VIA2_RA ; Clock low
     cmp #SD_MISO ; Set Carry to top bit of A (MISO)
     rol $00     ; Rotate carry into the data byte stored at $00
     dey
@@ -1362,7 +1362,7 @@ sdGetByte:
 sdWaitResponse:
     lda #$FF
     jsr sdSendByte
-    lda VIA2_RB
+    lda VIA2_RA
     bmi sdWaitResponse ; if top bit (minus flag) is set, keep looping
     jsr sdGetByte ; Get response
     rts
@@ -1376,10 +1376,10 @@ sdWaitData:
     rts
     
 sdSendDummies: ; Send a couple dummy bytes with CS high
-    lda VIA2_RB
+    lda VIA2_RA
     and #~SD_CLK
     ora #SD_CS
-    sta VIA2_RB ; Set CS high
+    sta VIA2_RA ; Set CS high
     lda #$FF
     jsr sdSendByte
     lda #$FF
@@ -1736,7 +1736,7 @@ irq:
     jsr GfxInterrupt
     ;ldx #$FF
 .notGfxInterrupt:
-    lda VIA2_IFR
+    lda VIA1_IFR
     and #%00000010
     beq .notKeyboardInterrupt
     jsr keyboardInterrupt
@@ -1760,7 +1760,7 @@ keyboardInterrupt:
     lda #0
     jmp $0700
 .notLoaded:
-    lda VIA2_RA ; Acknowledge interrupt
+    lda VIA1_RA ; Acknowledge interrupt
     rts
     
 GfxInterrupt:

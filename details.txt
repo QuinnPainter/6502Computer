@@ -161,3 +161,13 @@ cs2 - a13
 
 cs1 - io sel
 cs2 - a12
+
+VIA 1 = 0x9000
+Video on Port B
+Keyboard on Port A
+
+VIA 2 = 0xA000
+Sound Bus on Port B
+Sound Ctrl on Port A (PA0 = BC1, PA1 = BDIR)
+External Header on Port A (PA2 & PA3)
+SD on Port A (PA4 = CS, PA5 = SCK, PA6 = MOSI, PA7 = MISO)

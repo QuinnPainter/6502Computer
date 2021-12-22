@@ -527,7 +527,7 @@ irq: ; Given an input of A from the BIOS - 0 = Keyboard interrupt, 1 = Other int
     rts
     
 keyboardInterrupt:
-    lda VIA2_RA
+    lda VIA1_RA
     tax
     and #$7F
     cmp #2
