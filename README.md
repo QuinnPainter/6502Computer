@@ -20,3 +20,7 @@ A custom 8-bit computer based on the 6502 CPU. Aims to recreate the home compute
     <img src="Pictures/qsdos.jpg" alt="OS Running" width="500"/>
     <figcaption>OS Running</figcaption>
 </figure>
+<figure>
+    <img src="Pictures/pcb.jpg" alt="Assembled PCB" width="500"/>
+    <figcaption>Assembled PCB</figcaption>
+</figure>
